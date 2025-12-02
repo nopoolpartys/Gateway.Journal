@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30-Tage Gateway Experience Journal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #208a96;
+            --color-primary-dark: #1a6d78;
+            --color-primary-light: #50b8c0;
+            --color-success: #27ae60;
+            --color-warning: #e67e22;
+            --color-danger: #e74c3c;
+            --color-bg: #f5f7fa;
+            --color-surface: #ffffff;
+            --color-text: #2c3e50;
+            --color-text-secondary: #7f8c8d;
+            --color-border: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .day-progress {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-progress-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--color-border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .week-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .week-card {
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .week-card.active {
+            border-left-color: var(--color-success);
+            background: #f0fdf4;
+        }
+
+        .week-card h3 {
+            color: var(--color-text);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .week-card p {
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .daily-tasks {
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: start;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .task-item.completed {
+            background: #f0fdf4;
+            border-left-color: var(--color-success);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .task-desc {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .form-section {
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(32, 138, 150, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(32, 138, 150, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #ecf0f1;
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d5dbdb;
+        }
+
+        .btn-danger {
+            background-color: var(--color-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .emotion-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .emotion-btn {
+            padding: 10px;
+            border: 2px solid var(--color-border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .emotion-btn:hover {
+            border-color: var(--color-primary);
+        }
+
+        .emotion-btn.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .safety-checklist {
+            background: #f9f3cd;
+            border-left: 4px solid var(--color-warning);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .safety-checklist h3 {
+            color: var(--color-warning);
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .abort-criteria {
+            background: #ffe6e6;
+            border-left: 4px solid var(--color-danger);
+            padding: 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .abort-criteria h3 {
+            color: var(--color-danger);
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .abort-criteria ul {
+            margin-left: 20px;
+            font-size: 13px;
+            color: var(--color-text);
+            line-height: 1.7;
+        }
+
+        .abort-criteria li {
+            margin-bottom: 8px;
+        }
+
+        .chart-container {
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            margin-bottom: 20px;
+            color: var(--color-text);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            background: var(--color-border);
+            height: 30px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            transition: width 0.3s ease;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .daily-chart {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .chart-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bar {
+            width: 100%;
+            background: var(--color-border);
+            border-radius: 4px;
+            height: 150px;
+            position: relative;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            width: 100%;
+            height: 0;
+            transition: height 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding-bottom: 4px;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+
+        .rebal-guide {
+            background: #e8f4f8;
+            border: 1px solid #b3d9e0;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .rebal-guide h3 {
+            color: var(--color-primary);
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .rebal-guide ol {
+            margin-left: 20px;
+            font-size: 13px;
+            color: var(--color-text);
+            line-height: 1.8;
+        }
+
+        .rebal-guide li {
+            margin-bottom: 10px;
+        }
+
+        .session-log {
+            background: var(--color-surface);
+            padding: 18px;
+            border-radius: 6px;
+            border-left: 4px solid var(--color-primary);
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .session-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .session-date {
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 15px;
+        }
+
+        .session-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: var(--color-primary-light);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .session-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .session-content {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-border);
+            font-size: 13px;
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .emotion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .emotion-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #f0f4f8;
+            color: var(--color-text);
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-message p {
+            font-size: 14px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 11px 22px;
+            background-color: #f0f4f8;
+            color: var(--color-text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            background-color: #e0e8f0;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .week-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .session-details {
+                grid-template-columns: 1fr;
+            }
+
+            .daily-chart {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+
+            .tabs {
+                gap: 5px;
+            }
+
+            .tab-btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            header {
+                margin-bottom: 20px;
+                padding: 20px 0;
+            }
+
+            .tabs {
+                display: none;
+            }
+
+            .tab-content {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🧠 30-Tage Gateway Experience Journal</h1>
+            <p>Strukturierte tägliche Sessions mit Hemi-Sync Tapes, REBAL-Technik und Fortschrittserfassung</p>
+            <div class="day-progress">
+                <div class="day-progress-text">
+                    Tag <span id="currentDay">1</span> von 30
+                </div>
+                <div style="flex: 1; margin: 0 20px;">
+                    <div class="progress-bar" style="margin: 0;">
+                        <div class="progress-fill" id="overallProgress" style="width: 3.33%;">3%</div>
+                    </div>
+                </div>
+                <span id="completionDate" style="font-size: 14px;">Abschluss: -</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs no-print">
+            <button class="tab-btn active" onclick="switchTab('overview')">📅 Überblick</button>
+            <button class="tab-btn" onclick="switchTab('today')">📝 Heute</button>
+            <button class="tab-btn" onclick="switchTab('sessions')">📔 Alle Sessions</button>
+            <button class="tab-btn" onclick="switchTab('progress')">📊 Fortschritt</button>
+            <button class="tab-btn" onclick="switchTab('safety')">⚠️ Sicherheit</button>
+            <button class="tab-btn" onclick="switchTab('export')">💾 Daten & Export</button>
+        </div>
+
+        <!-- TAB: Überblick -->
+        <div id="overview" class="tab-content active">
+            <div class="week-overview">
+                <div class="week-card">
+                    <h3>🌟 Woche 1 (Tag 1-7): Wave I Discovery</h3>
+                    <p><strong>Focus Level:</strong> Focus 10</p>
+                    <p><strong>Tracks:</strong> Orientation, Intro Focus 10, Advanced Focus 10, Release & Recharge</p>
+                    <p style="margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--color-primary);">Grundlagen etablieren</p>
+                </div>
+
+                <div class="week-card">
+                    <h3>🌊 Woche 2 (Tag 8-14): Wave I/II Threshold</h3>
+                    <p><strong>Focus Level:</strong> Focus 10-12</p>
+                    <p><strong>Tracks:</strong> Threshold Serie</p>
+                    <p style="margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--color-primary);">Bewusstsein erweitern</p>
+                </div>
+
+                <div class="week-card">
+                    <h3>🚀 Woche 3 (Tag 15-21): Wave II</h3>
+                    <p><strong>Focus Level:</strong> Focus 12</p>
+                    <p><strong>Tracks:</strong> Exploring Serie</p>
+                    <p style="margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--color-primary);">Erkundung & Vertiefung</p>
+                </div>
+
+                <div class="week-card">
+                    <h3>✨ Woche 4 (Tag 22-30): Wave III Freedom</h3>
+                    <p><strong>Focus Level:</strong> Focus 15</p>
+                    <p><strong>Tracks:</strong> Freedom Serie</p>
+                    <p style="margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--color-primary);">Freiheit & Integration</p>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>📋 30-Tage-Plan gestartet am:</h2>
+                <div class="form-group">
+                    <label>Startdatum (änderbar):</label>
+                    <input type="date" id="startDate" onchange="updateProgramDates()">
+                </div>
+                <p style="color: var(--color-text-secondary); font-size: 13px; margin-top: 10px;">
+                    Dein tägliches Routine-Fenster: <strong>30-45 Minuten</strong> mit Hemi-Sync Tapes, REBAL-Vorbereitung und Journal-Eintrag
+                </p>
+            </div>
+        </div>
+
+        <!-- TAB: Heute -->
+        <div id="today" class="tab-content">
+            <div class="form-section">
+                <h2>📝 Heutige Session erfassen</h2>
+
+                <div class="rebal-guide">
+                    <h3>🛡️ REBAL-Vorbereitung (5 Min vor Session)</h3>
+                    <ol>
+                        <li>Finde einen ruhigen, dunklen Raum</li>
+                        <li>Atme tief ein und stelle deine Absicht</li>
+                        <li>Visualisiere eine energetische Blase um deinen Körper (goldenes/weißes Licht)</li>
+                        <li>Mit jedem Atemzug expandiert die Blase und schützt dich</li>
+                        <li>Bestätige: "Ich bin sicher, geschützt und offen für diese Erfahrung"</li>
+                    </ol>
+                </div>
+
+                <form id="sessionForm">
+                    <div class="form-group">
+                        <label>Datum:</label>
+                        <input type="date" id="sessionDate" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Aktuelle Woche:</label>
+                            <select id="week" onchange="updateWaveInfo()" required>
+                                <option value="">-- Bitte auswählen --</option>
+                                <option value="1">Woche 1 (Tag 1-7) - Wave I Discovery</option>
+                                <option value="2">Woche 2 (Tag 8-14) - Wave I/II Threshold</option>
+                                <option value="3">Woche 3 (Tag 15-21) - Wave II</option>
+                                <option value="4">Woche 4 (Tag 22-30) - Wave III Freedom</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Track/Übung:</label>
+                            <select id="track" required>
+                                <option value="">-- Wähle zuerst Woche --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Focus Level erreicht:</label>
+                            <select id="focusLevelReached" required>
+                                <option value="">-- Bitte auswählen --</option>
+                                <option value="10">Focus 10 - Body asleep, mind awake</option>
+                                <option value="11">Focus 11 - Access Channel</option>
+                                <option value="12">Focus 12 - Expanded awareness</option>
+                                <option value="15">Focus 15 - No-Time</option>
+                                <option value="other">Andere/Nicht erreicht</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sitzungsdauer (Minuten):</label>
+                            <input type="number" id="duration" min="10" max="120" placeholder="z.B. 35" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Erlebnisse & Beobachtungen:</label>
+                        <textarea id="experiences" placeholder="Beschreibe Visionen, Gefühle, Erkenntnisse, interessante Momente..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Emotionen während der Session:</label>
+                        <div class="emotion-selector">
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">😌 Ruhig</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">😊 Freude</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">✨ Erstaunt</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">🤔 Verwirrt</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">😰 Angst</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">💪 Kraftvoll</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">🕉️ Spirituell</button>
+                            <button type="button" class="emotion-btn" onclick="toggleEmotion(this)">😴 Müde</button>
+                        </div>
+                        <input type="hidden" id="emotionsInput">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sicherheitscheck - Hattest du während der Session:</label>
+                        <div class="safety-checklist" style="margin-top: 10px;">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="safe1" onchange="checkSafety()">
+                                <label for="safe1">Panik oder intensive Angst?</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="safe2" onchange="checkSafety()">
+                                <label for="safe2">Zittern oder unkontrollierte Bewegungen?</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="safe3" onchange="checkSafety()">
+                                <label for="safe3">Übelkeit oder Schwindel?</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="safe4" onchange="checkSafety()">
+                                <label for="safe4">Schwierigkeiten, zur physischen Realität zurückzukehren?</label>
+                            </div>
+                        </div>
+                        <div id="safetyWarning" style="display: none; background: #ffe6e6; color: var(--color-danger); padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 13px;">
+                            ⚠️ Du hast Sicherheitsbedenken gemeldet. Bitte füge Details hinzu und erwäge, die nächste Session zu verschieben.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notizen & Reflexion:</label>
+                        <textarea id="notes" placeholder="Erkenntnisse, Hypothesen, Vergleich zu vorherigen Sessions..."></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">✅ Session speichern</button>
+                        <button type="reset" class="btn-secondary">🔄 Zurücksetzen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: Alle Sessions -->
+        <div id="sessions" class="tab-content">
+            <div class="form-section">
+                <h2>📔 Alle erfassten Sessions</h2>
+                <div id="sessionsList" class="sessions-list">
+                    <div class="empty-message">
+                        <p>📝 Noch keine Sessions erfasst.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Fortschritt -->
+        <div id="progress" class="tab-content">
+            <div class="chart-container">
+                <h2>📊 Dein Fortschritt</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalSessions">0</div>
+                        <div class="stat-label">Sessions absolviert</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalMinutes">0</div>
+                        <div class="stat-label">Minuten gesamt</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="daysActive">0</div>
+                        <div class="stat-label">Tage aktiv</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="avgDuration">0</div>
+                        <div class="stat-label">Ø Dauer (Min.)</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px;">Focus-Level Verlauf:</h3>
+                <div id="focusProgress" class="chart-container" style="padding: 0; box-shadow: none; background: transparent;"></div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px;">Wöchentlicher Fortschritt:</h3>
+                <div id="weeklyProgress"></div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px;">Tägliches Ausdauer-Chart (letzte 14 Tage):</h3>
+                <div class="daily-chart" id="dailyChart"></div>
+            </div>
+        </div>
+
+        <!-- TAB: Sicherheit -->
+        <div id="safety" class="tab-content">
+            <div class="form-section">
+                <h2>🛡️ Sicherheitsprotokolle & Medizinische Screening</h2>
+
+                <div class="abort-criteria" style="background: #ffe6e6;">
+                    <h3>⚠️ VOR JEDER SESSION - Darf ich beginnen?</h3>
+                    <ul>
+                        <li><strong>Keine Epilepsie:</strong> Hemi-Sync nutzt Binaural Beats, die für Menschen mit Epilepsie problematisch sein können</li>
+                        <li><strong>Keine schweren Herzprobleme:</strong> Tiefer Entspannungszustand kann den Herzrhythmus beeinflussen</li>
+                        <li><strong>Psychisch stabil:</strong> Nicht während schwerer Depression, akuter Psychose oder Suizidgedanken starten</li>
+                        <li><strong>Keine Drogen/Alkohol:</strong> Mindestens 12 Stunden nüchtern</li>
+                        <li><strong>Ärztliches OK bei Medikamenten:</strong> Bei Psychopharmaka vorher mit Arzt klären</li>
+                    </ul>
+                </div>
+
+                <div class="safety-checklist">
+                    <h3>✅ Vor jeder Session - Umgebung:</h3>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ich bin in einem sicheren, ruhigen, dunklen Raum</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Keine Ablenkungen (Handy stummgeschaltet, Notifications aus)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ich bin körperlich komfortabel positioniert (sitzend oder liegend)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ich habe gegessen/getrunken (nicht hungrig/durstig)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ich bin emotional stabil und bereit</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>REBAL-Vorbereitung durchgeführt (5 Min Energie-Blase)</label>
+                    </div>
+                </div>
+
+                <div class="abort-criteria">
+                    <h3>🛑 STOPPE DIE SESSION SOFORT, wenn:</h3>
+                    <ul>
+                        <li><strong>Panik/intensive Angst:</strong> Die nicht nachlässt - sofort aus der Session kommen</li>
+                        <li><strong>Zittern oder unkontrollierte Bewegungen:</strong> Körperliche Dysregulation</li>
+                        <li><strong>Übelkeit/Schwindel/Ohnmacht:</strong> Körperliche Symptome ignorieren</li>
+                        <li><strong>Desorientierung:</strong> Du kannst nicht zwischen Traum und Realität unterscheiden</li>
+                        <li><strong>Negative/bedrohliche Präsenzen:</strong> Die du nicht kontrollieren kannst</li>
+                        <li><strong>Dissoziation:</strong> Gefühl, nicht in deinen Körper zurückzukehren</li>
+                        <li><strong>Externe Alarme/Gefahren:</strong> Feueralarm, Lärm, physische Bedrohung</li>
+                    </ul>
+                </div>
+
+                <div class="safety-checklist" style="background: #e8f5e9; border-left-color: var(--color-success);">
+                    <h3 style="color: var(--color-success);">✔️ Rückkehr zur physischen Realität (Grounding):</h3>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">1. 🫁 Atme tief ein und fokussiere dich auf deinen Körper</label>
+                    </div>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">2. 🤲 Beginne, deine Finger und Zehen zu bewegen</label>
+                    </div>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">3. 👀 Öffne deine Augen langsam, blinzle mehrmals</label>
+                    </div>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">4. 🤸 Strecke und dehne deinen Körper, ruckeln</label>
+                    </div>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">5. 💧 Trinke Wasser, bewege dich im Raum herum</label>
+                    </div>
+                    <div class="checklist-item">
+                        <label style="margin: 0; font-weight: normal; font-size: 14px;">6. 🌍 Bare Feet auf dem Boden: Erdung/Grounding durchführen</label>
+                    </div>
+                </div>
+
+                <div style="background: #f3e5f5; border: 1px solid #e1bee7; padding: 18px; border-radius: 6px; margin-top: 20px;">
+                    <p style="color: #512da8; font-size: 13px; line-height: 1.6;">
+                        💡 <strong>Wichtig:</strong> Die Gateway Experience ist eine sichere, bewährte Methode der Monroe Institute. Nervosität vor den ersten Sessions ist völlig normal. Du kontrollierst immer deine Erfahrung - wenn dich etwas unwohl fühlt, kannst du jederzeit stoppen. Bei anhaltenden Sicherheitsbedenken, konsultiere einen Arzt oder erfahrenen Practitioner.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Daten & Export -->
+        <div id="export" class="tab-content">
+            <div class="form-section">
+                <h2>💾 Daten & Export</h2>
+
+                <div style="background: #f0f4f8; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
+                    <p><strong>Deine Daten werden lokal in deinem Browser gespeichert.</strong> Sie werden nicht auf einen Server hochgeladen. Du kannst jederzeit dein Journal exportieren oder löschen.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn-primary" onclick="exportJSON()">📥 Als JSON exportieren</button>
+                    <button class="btn-primary" onclick="exportPDF()">📄 Als PDF exportieren</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <h3 style="font-size: 15px; margin-bottom: 10px;">Importieren:</h3>
+                        <div class="file-input-wrapper">
+                            <label for="fileInput" class="file-input-label">📤 JSON-Datei importieren</label>
+                            <input type="file" id="fileInput" accept=".json" onchange="importJSON(event)">
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 15px; margin-bottom: 10px;">Daten löschen:</h3>
+                        <button class="btn-danger" onclick="clearAllData()">🗑️ Alles löschen</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--color-border);">
+                    <h3 style="margin-bottom: 15px;">📊 Statistiken</h3>
+                    <div id="statsInfo" style="background: #f9f9f9; padding: 15px; border-radius: 6px; font-size: 13px; line-height: 1.8;">
+                        <p>Lade dein Journal um Statistiken zu sehen.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.getElementById('sessionDate').valueAsDate = new Date();
+        document.getElementById('startDate').valueAsDate = new Date();
+
+        // Data storage
+        let sessions = JSON.parse(localStorage.getItem('gatewaySessions')) || [];
+
+        const waveInfo = {
+            1: {
+                name: 'Wave I Discovery',
+                focusLevel: '10',
+                tracks: ['Orientation', 'Introduction Focus 10', 'Advanced Focus 10', 'Release & Recharge', 'Free Flow 10']
+            },
+            2: {
+                name: 'Wave I/II Threshold',
+                focusLevel: '10-12',
+                tracks: ['Introduction Focus 12', 'One-Month Patterning', 'Threshold Focus 12', 'One-Breath Technique', 'Living Body Map']
+            },
+            3: {
+                name: 'Wave II',
+                focusLevel: '12',
+                tracks: ['Exploration Module', 'Free Exploration', 'Energy Conversion Box', 'Metasong', 'Exploring Upward']
+            },
+            4: {
+                name: 'Wave III Freedom',
+                focusLevel: '15',
+                tracks: ['Liftoff', 'First Stage Separation', 'Energy Bar Tool', 'Energy Food', 'Five Questions']
+            }
+        };
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'sessions') displaySessions();
+            if (tabName === 'progress') updateProgress();
+        }
+
+        // Update wave info
+        function updateWaveInfo() {
+            const week = document.getElementById('week').value;
+            const trackSelect = document.getElementById('track');
+            trackSelect.innerHTML = '<option value="">-- Bitte auswählen --</option>';
+            
+            if (week && waveInfo[week]) {
+                waveInfo[week].tracks.forEach(track => {
+                    const option = document.createElement('option');
+                    option.value = track;
+                    option.textContent = track;
+                    trackSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Emotion toggle
+        function toggleEmotion(btn) {
+            btn.classList.toggle('selected');
+            updateEmotionsInput();
+        }
+
+        function updateEmotionsInput() {
+            const selected = document.querySelectorAll('.emotion-btn.selected');
+            const emotions = Array.from(selected).map(btn => btn.textContent.split(' ').slice(1).join(' '));
+            document.getElementById('emotionsInput').value = emotions.join(', ');
+        }
+
+        // Safety check
+        function checkSafety() {
+            const safe1 = document.getElementById('safe1').checked;
+            const safe2 = document.getElementById('safe2').checked;
+            const safe3 = document.getElementById('safe3').checked;
+            const safe4 = document.getElementById('safe4').checked;
+            
+            const warning = document.getElementById('safetyWarning');
+            if (safe1 || safe2 || safe3 || safe4) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        // Form submission
+        document.getElementById('sessionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const session = {
+                id: Date.now(),
+                date: document.getElementById('sessionDate').value,
+                week: document.getElementById('week').value,
+                track: document.getElementById('track').value,
+                focusLevelReached: document.getElementById('focusLevelReached').value,
+                duration: parseInt(document.getElementById('duration').value),
+                experiences: document.getElementById('experiences').value,
+                emotions: document.getElementById('emotionsInput').value,
+                safetyIssues: {
+                    panic: document.getElementById('safe1').checked,
+                    trembling: document.getElementById('safe2').checked,
+                    nausea: document.getElementById('safe3').checked,
+                    difficulty: document.getElementById('safe4').checked
+                },
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().toISOString()
+            };
+
+            sessions.push(session);
+            localStorage.setItem('gatewaySessions', JSON.stringify(sessions));
+
+            alert('✅ Session erfolgreich gespeichert!');
+            this.reset();
+            document.getElementById('sessionDate').valueAsDate = new Date();
+            document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('selected'));
+            updateProgress();
+        });
+
+        // Display sessions
+        function displaySessions() {
+            const container = document.getElementById('sessionsList');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = '<div class="empty-message"><p>📝 Noch keine Sessions erfasst.</p></div>';
+                return;
+            }
+
+            container.innerHTML = sessions.slice().reverse().map(session => `
+                <div class="session-log">
+                    <div class="session-log-header">
+                        <div>
+                            <div class="session-date">📅 ${new Date(session.date).toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteSession(${session.id})" style="padding: 6px 12px; font-size: 12px;">🗑️</button>
+                    </div>
+                    <div class="session-details">
+                        <div>📍 <strong>Wave:</strong> Wave ${session.week}</div>
+                        <div>🎯 <strong>Track:</strong> ${session.track}</div>
+                        <div>🧠 <strong>Focus Level:</strong> Focus ${session.focusLevelReached}</div>
+                        <div>⏱️ <strong>Dauer:</strong> ${session.duration} Min</div>
+                    </div>
+                    <div class="session-content">
+                        <strong>Erlebnisse:</strong>
+                        <p>${session.experiences}</p>
+                        ${session.emotions ? `<strong style="display: block; margin-top: 8px;">Emotionen:</strong>
+                        <div class="emotion-tags">
+                            ${session.emotions.split(', ').map(e => `<span class="emotion-tag">${e}</span>`).join('')}
+                        </div>` : ''}
+                        ${session.notes ? `<strong style="display: block; margin-top: 8px;">Notizen:</strong>
+                        <p>${session.notes}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteSession(id) {
+            if (confirm('Session löschen?')) {
+                sessions = sessions.filter(s => s.id !== id);
+                localStorage.setItem('gatewaySessions', JSON.stringify(sessions));
+                displaySessions();
+                updateProgress();
+            }
+        }
+
+        // Update progress
+        function updateProgress() {
+            const totalSessions = sessions.length;
+            const totalMinutes = sessions.reduce((sum, s) => sum + s.duration, 0);
+            const daysActive = new Set(sessions.map(s => s.date)).size;
+            const avgDuration = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('totalMinutes').textContent = totalMinutes;
+            document.getElementById('daysActive').textContent = daysActive;
+            document.getElementById('avgDuration').textContent = avgDuration;
+
+            // Focus level progress
+            const focusData = {};
+            sessions.forEach(s => {
+                if (!focusData[s.focusLevelReached]) focusData[s.focusLevelReached] = 0;
+                focusData[s.focusLevelReached]++;
+            });
+
+            const focusProgressHtml = Object.entries(focusData)
+                .sort((a, b) => b[1] - a[1])
+                .map(([focus, count]) => {
+                    const percent = (count / totalSessions) * 100;
+                    return `
+                        <div style="margin-bottom: 18px;">
+                            <div class="progress-label">
+                                <span>Focus ${focus}</span>
+                                <span>${count}x</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percent}%">${Math.round(percent)}%</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            document.getElementById('focusProgress').innerHTML = focusProgressHtml || '<p style="color: var(--color-text-secondary); font-size: 13px;">Noch keine Daten</p>';
+
+            // Weekly progress
+            const weekData = {};
+            sessions.forEach(s => {
+                if (!weekData[s.week]) weekData[s.week] = { count: 0, minutes: 0 };
+                weekData[s.week].count++;
+                weekData[s.week].minutes += s.duration;
+            });
+
+            const weekProgressHtml = Object.entries(weekData)
+                .sort((a, b) => a[0] - b[0])
+                .map(([week, data]) => `
+                    <div style="margin-bottom: 15px;">
+                        <p style="font-size: 13px; color: var(--color-text); margin-bottom: 5px;"><strong>Woche ${week}:</strong> ${data.count} Sessions, ${data.minutes} Minuten</p>
+                    </div>
+                `).join('');
+            document.getElementById('weeklyProgress').innerHTML = weekProgressHtml || '<p style="color: var(--color-text-secondary); font-size: 13px;">Noch keine Daten</p>';
+
+            // Daily chart
+            const last14Days = [];
+            for (let i = 13; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last14Days.push(date.toISOString().split('T')[0]);
+            }
+
+            const dailyData = {};
+            last14Days.forEach(date => dailyData[date] = 0);
+            sessions.forEach(s => {
+                if (dailyData[s.date] !== undefined) {
+                    dailyData[s.date] += s.duration;
+                }
+            });
+
+            const maxMinutes = Math.max(...Object.values(dailyData), 45);
+            const dailyChartHtml = Object.entries(dailyData).map(([date, minutes]) => {
+                const percent = (minutes / maxMinutes) * 100;
+                const day = new Date(date).getDate();
+                return `
+                    <div class="chart-bar">
+                        <div class="bar">
+                            <div class="bar-fill" style="height: ${percent}%;">${minutes > 0 ? minutes : ''}</div>
+                        </div>
+                        <div class="bar-label">${day}</div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('dailyChart').innerHTML = dailyChartHtml;
+
+            // Update header
+            const startDate = new Date(document.getElementById('startDate').value);
+            const today = new Date();
+            const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const clampedDay = Math.min(daysPassed, 30);
+            document.getElementById('currentDay').textContent = clampedDay;
+            document.getElementById('overallProgress').style.width = (clampedDay / 30) * 100 + '%';
+            document.getElementById('overallProgress').textContent = Math.round((clampedDay / 30) * 100) + '%';
+
+            if (clampedDay === 30) {
+                document.getElementById('completionDate').textContent = '✅ Abgeschlossen!';
+            } else {
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 29);
+                document.getElementById('completionDate').textContent = `Abschluss: ${endDate.toLocaleDateString('de-DE')}`;
+            }
+        }
+
+        function updateProgramDates() {
+            updateProgress();
+        }
+
+        // Export functions
+        function exportJSON() {
+            const dataStr = JSON.stringify(sessions, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Gateway-Journal-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function exportPDF() {
+            const element = document.body;
+            const options = {
+                margin: 10,
+                filename: `Gateway-Journal-${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(options).from(element).save();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        sessions = imported;
+                        localStorage.setItem('gatewaySessions', JSON.stringify(sessions));
+                        alert('✅ Daten erfolgreich importiert!');
+                        displaySessions();
+                        updateProgress();
+                    } else {
+                        alert('❌ Ungültiges JSON-Format');
+                    }
+                } catch (error) {
+                    alert('❌ Fehler beim Importieren: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ Alle Daten löschen? Das kann nicht rückgängig gemacht werden!')) {
+                sessions = [];
+                localStorage.removeItem('gatewaySessions');
+                alert('✅ Alle Daten gelöscht');
+                displaySessions();
+                updateProgress();
+            }
+        }
+
+        // Initial update
+        updateProgress();
+        displaySessions();
+    </script>
+</body>
+</html>
